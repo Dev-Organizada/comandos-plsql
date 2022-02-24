@@ -22,9 +22,14 @@ begin
 	
   -- Inserir dados na tabela
   elsif v_opcao = 2 then
-    insert into ideias values(v_novo_id,v_novo_tema);
-    commit;
-    dbms_output.put_line('Dados inseridos com sucesso.');
+    begin
+      insert into ideias values(v_novo_id,v_novo_tema);
+      commit;
+      dbms_output.put_line('Dados inseridos com sucesso.');
+    exception when others then
+      dbms_output.put_line('Erro encontrado! '||sqlerrm);
+      rollback;
+    end;
 	
   -- Atualizar dados da tabela
   elsif v_opcao = 3 then

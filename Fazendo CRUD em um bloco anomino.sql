@@ -32,7 +32,7 @@ begin
     commit;
     dbms_output.put_line('Dados atualizados com sucesso.');
 	
-  -- Deletando dados da tabela
+  -- Deletando dados da tabel
   elsif v_opcao = 4 then
     delete from ideias where id_ideias = v_identificador;
     commit;

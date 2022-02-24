@@ -1,7 +1,7 @@
 declare
   v_opcao         number default 0;
   v_identificador number;
-  v_verificador   number;
+  v_verificador  varchar2(1);
   v_novo_id       ideias.id_ideias%type;
   v_novo_tema     ideias.tema%type;
 

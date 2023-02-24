@@ -71,4 +71,18 @@ COMMIT;
 SELECT * FROM purcheses;
 
 -- Recuperando os atributos usando o DEREF
-SELECT deref(customer_ref).first_name name,deref(customer_ref).address.street street, deref(product_ref).name product FROM purcheses;
+SELECT
+    deref(customer_ref).first_name     name,
+    deref(customer_ref).address.street street,
+    deref(product_ref).name            product
+FROM
+    purcheses;
+    
+-- Atualizando product_ref para apontar para o produto 2
+UPDATE purcheses
+SET product_ref = (
+        SELECT ref(op) FROM object_products op WHERE op.id = 2
+    ) WHERE id = 1;
+
+COMMIT;
+

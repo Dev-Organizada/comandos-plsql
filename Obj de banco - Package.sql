@@ -1,4 +1,4 @@
-CREATE PACKAGE product_package AS
+CREATE OR REPLACE PACKAGE product_package AS
     -- Criando um objeto do tipo cursor
     TYPE t_ref_cursor IS REF CURSOR;
     

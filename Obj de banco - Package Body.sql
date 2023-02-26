@@ -23,7 +23,7 @@ CREATE OR REPLACE PACKAGE BODY product_package AS
                 
                 -- Exibe os atributos de v_product
                 dbms_output.put_line('Id: '||v_product.id);
-                dbms_output.put_line('Nme: '||v_product.name);
+                dbms_output.put_line('Name: '||v_product.name);
                 dbms_output.put_line('Description: '||v_product.description);
                 dbms_output.put_line('Price: '||v_product.price);
                 dbms_output.put_line('Days Valid: '||v_product.days_valid);
@@ -41,7 +41,7 @@ CREATE OR REPLACE PACKAGE BODY product_package AS
             p_days_valid    IN object_products.days_valid%TYPE) AS
             
             -- Cria um objeto t_product chamado v_product
-            v_product t_product := t_product(p_id, p_name, p_description, p_price, p_days_valid);
+                v_product t_product := t_product(p_id, p_name, p_description, p_price, p_days_valid);
             begin
                 -- Insere v_product na tabela object_products
                 INSERT INTO object_products VALUES (v_product);
@@ -120,5 +120,3 @@ CREATE OR REPLACE PACKAGE BODY product_package AS
         end delete_product;
 
 END product_package;
-
-

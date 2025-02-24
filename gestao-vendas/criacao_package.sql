@@ -13,19 +13,16 @@ CREATE OR REPLACE PACKAGE pk_gestao_venda AS
         pestado IN cidade.estado%TYPE
     );
 
+    PROCEDURE pr_registra_endereco (
+        pendereco IN t_endereco
+    );
+
     FUNCTION f_busca_cep (
         pcep IN endereco.cep%TYPE
     ) RETURN t_ref_cursor;
 
     PROCEDURE pr_cadastra_cliente (
-        pnome           IN cliente.nome%TYPE,
-        ptelefone       IN cliente.telefone%TYPE,
-        pemail          IN cliente.email%TYPE,
-        pdatanascimento IN cliente.data_nascimento%TYPE,
-        psexo           IN cliente.sexo%TYPE,
-        pidendereco     IN cliente.id_endereco%TYPE,
-        pnumero         IN cliente.numero_residencia%TYPE,
-        pcomplemento    IN cliente.complemento%TYPE
+        pcliente IN t_cliente
     );
 
     PROCEDURE pr_cadastra_produto (
@@ -43,6 +40,7 @@ CREATE OR REPLACE PACKAGE pk_gestao_venda AS
     PROCEDURE pr_atualiza_estoque (
         pidproduto  IN estoque.id_produto%TYPE,
         pquantidade IN estoque.quantidade%TYPE,
+        pvaloruni   IN estoque.valor_unitario%TYPE,
         pacao       IN VARCHAR2
     );
 

@@ -7,4 +7,4 @@ Comandos sobre a linguagem PL/SQL
 #
 ✖️ Criação de tabuada e de calculadora, utilizando operações matemáticas, comandos de condição e repetição
 #
-🖥️ Gestão de vendas, criação de um pacote, utilizando CRUD, cursor referencia e array.
+🖥️ Gestão de vendas, criação de um pacote, utilizando CRUD, cursor referencia, array e objects.

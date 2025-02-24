@@ -3,12 +3,35 @@ CREATE OR REPLACE PACKAGE BODY pk_gestao_venda AS
     PROCEDURE pr_registra_categoria (
         pnome IN categoria.nome%TYPE
     ) IS
+        vverificanome VARCHAR2(1);
     BEGIN
-        INSERT INTO categoria VALUES ( categoria_seq.NEXTVAL,
-                                       pnome );
+        BEGIN
+            SELECT
+                'S'
+            INTO vverificanome
+            FROM
+                categoria
+            WHERE
+                upper(nome) = upper(pnome);
 
-        COMMIT;
-        dbms_output.put_line('Categoria cadastrada com sucesso');
+        EXCEPTION
+            WHEN no_data_found THEN
+                vverificanome := 'N';
+            WHEN OTHERS THEN
+                vverificanome := 'N';
+                dbms_output.put_line('Erro ao verificar nome. ' || sqlerrm);
+        END;
+
+        IF vverificanome = 'S' THEN
+            dbms_output.put_line('Categoria ja registrada em sistema.');
+        ELSE
+            INSERT INTO categoria VALUES ( categoria_seq.NEXTVAL,
+                                           pnome );
+
+            COMMIT;
+            dbms_output.put_line('Categoria cadastrada com sucesso');
+        END IF;
+
     EXCEPTION
         WHEN OTHERS THEN
             ROLLBACK;
@@ -18,12 +41,35 @@ CREATE OR REPLACE PACKAGE BODY pk_gestao_venda AS
     PROCEDURE pr_registra_forma_pagamento (
         pdescricao IN forma_pagamento.descricao%TYPE
     ) IS
+        vverificapagamento VARCHAR2(1);
     BEGIN
-        INSERT INTO forma_pagamento VALUES ( pagamento_seq.NEXTVAL,
-                                             pdescricao );
+        BEGIN
+            SELECT
+                'S'
+            INTO vverificapagamento
+            FROM
+                forma_pagamento
+            WHERE
+                upper(descricao) = upper(pdescricao);
 
-        COMMIT;
-        dbms_output.put_line('Forma de pagamento cadastrada com sucesso');
+        EXCEPTION
+            WHEN no_data_found THEN
+                vverificapagamento := 'N';
+            WHEN OTHERS THEN
+                vverificapagamento := 'N';
+                dbms_output.put_line('Erro ao verificar forma de pagamento. ' || sqlerrm);
+        END;
+
+        IF vverificapagamento = 'S' THEN
+            dbms_output.put_line('Forma de pagamento ja registrada em sistema.');
+        ELSE
+            INSERT INTO forma_pagamento VALUES ( pagamento_seq.NEXTVAL,
+                                                 pdescricao );
+
+            COMMIT;
+            dbms_output.put_line('Forma de pagamento cadastrada com sucesso');
+        END IF;
+
     EXCEPTION
         WHEN OTHERS THEN
             ROLLBACK;
@@ -34,17 +80,84 @@ CREATE OR REPLACE PACKAGE BODY pk_gestao_venda AS
         pcidade IN cidade.nome%TYPE,
         pestado IN cidade.estado%TYPE
     ) IS
+        vverificacidade VARCHAR2(1);
     BEGIN
-        INSERT INTO cidade VALUES ( cidade_seq.NEXTVAL,
-                                    pcidade,
-                                    pestado );
+        BEGIN
+            SELECT
+                'S'
+            INTO vverificacidade
+            FROM
+                cidade
+            WHERE
+                    upper(nome) = upper(pcidade)
+                AND upper(estado) = upper(pestado);
 
-        COMMIT;
-        dbms_output.put_line('Cidade cadastrada com sucesso');
+        EXCEPTION
+            WHEN no_data_found THEN
+                vverificacidade := 'N';
+            WHEN OTHERS THEN
+                vverificacidade := 'N';
+                dbms_output.put_line('Erro ao verificar nome de cidade. ' || sqlerrm);
+        END;
+
+        IF vverificacidade = 'S' THEN
+            dbms_output.put_line('Cidade ja registrada em sistema.');
+        ELSE
+            INSERT INTO cidade VALUES ( cidade_seq.NEXTVAL,
+                                        pcidade,
+                                        pestado );
+
+            COMMIT;
+            dbms_output.put_line('Cidade cadastrada com sucesso');
+        END IF;
+
     EXCEPTION
         WHEN OTHERS THEN
             ROLLBACK;
             dbms_output.put_line('Erro ao cadastrar cidade. ' || sqlerrm);
+    END;
+
+    PROCEDURE pr_registra_endereco (
+        pendereco IN t_endereco
+    ) IS
+        vverificacidade VARCHAR2(1);
+    BEGIN
+        BEGIN
+            SELECT
+                'S'
+            INTO vverificacidade
+            FROM
+                cidade
+            WHERE
+                id_cidade = pendereco.id_cidade;
+
+        EXCEPTION
+            WHEN no_data_found THEN
+                vverificacidade := 'N';
+                dbms_output.put_line('Cidade não cadastrada no sistema');
+            WHEN OTHERS THEN
+                vverificacidade := 'N';
+                dbms_output.put_line('Erro ao pesquisar cidade. ' || sqlerrm);
+        END;
+
+        IF vverificacidade = 'S' THEN
+            BEGIN
+                INSERT INTO endereco VALUES ( endereco_seq.NEXTVAL,
+                                              pendereco.cep,
+                                              pendereco.rua,
+                                              pendereco.bairro,
+                                              pendereco.id_cidade );
+
+                COMMIT;
+                dbms_output.put_line('Endereço cadastrado com sucesso.');
+            EXCEPTION
+                WHEN OTHERS THEN
+                    ROLLBACK;
+                    dbms_output.put_line('Erro ao cadastrar endereço. ' || sqlerrm);
+            END;
+
+        END IF;
+
     END;
 
     FUNCTION f_busca_cep (
@@ -68,14 +181,7 @@ CREATE OR REPLACE PACKAGE BODY pk_gestao_venda AS
     END;
 
     PROCEDURE pr_cadastra_cliente (
-        pnome           IN cliente.nome%TYPE,
-        ptelefone       IN cliente.telefone%TYPE,
-        pemail          IN cliente.email%TYPE,
-        pdatanascimento IN cliente.data_nascimento%TYPE,
-        psexo           IN cliente.sexo%TYPE,
-        pidendereco     IN cliente.id_endereco%TYPE,
-        pnumero         IN cliente.numero_residencia%TYPE,
-        pcomplemento    IN cliente.complemento%TYPE
+        pcliente IN t_cliente
     ) IS
         vverificaendereco VARCHAR2(1);
     BEGIN
@@ -86,12 +192,12 @@ CREATE OR REPLACE PACKAGE BODY pk_gestao_venda AS
             FROM
                 endereco
             WHERE
-                id_endereco = pidendereco;
+                cep = pcliente.cep;
 
         EXCEPTION
             WHEN no_data_found THEN
                 vverificaendereco := 'N';
-                dbms_output.put_line('Código informado não possui endereço cadastrado.');
+                dbms_output.put_line('CEP informado não possui endereço cadastrado.');
             WHEN OTHERS THEN
                 vverificaendereco := 'N';
                 dbms_output.put_line('Erro ao pesquisar endereço. ' || sqlerrm);
@@ -100,14 +206,14 @@ CREATE OR REPLACE PACKAGE BODY pk_gestao_venda AS
         IF vverificaendereco = 'S' THEN
             BEGIN
                 INSERT INTO cliente VALUES ( cliente_seq.NEXTVAL,
-                                             pnome,
-                                             ptelefone,
-                                             pemail,
-                                             pdatanascimento,
-                                             psexo,
-                                             pidendereco,
-                                             pcomplemento,
-                                             pnumero );
+                                             pcliente.nome,
+                                             pcliente.telefone,
+                                             pcliente.email,
+                                             pcliente.data_nascimento,
+                                             pcliente.sexo,
+                                             pcliente.cep,
+                                             pcliente.complemento,
+                                             pcliente.numero );
 
                 COMMIT;
                 dbms_output.put_line('Cliente cadastrado com sucesso');
@@ -165,24 +271,24 @@ CREATE OR REPLACE PACKAGE BODY pk_gestao_venda AS
                 dbms_output.put_line('Erro ao pesquisar categoria. ' || sqlerrm);
         END;
 
-        IF vverificanome = 'N' THEN
-            IF vverificacategoria = 'S' THEN
-                BEGIN
-                    INSERT INTO produto VALUES ( produto_seq.NEXTVAL,
-                                                 pnome,
-                                                 pdescricao,
-                                                 pidcategoria,
-                                                 sysdate );
+        IF
+            vverificanome = 'N'
+            AND vverificacategoria = 'S'
+        THEN
+            BEGIN
+                INSERT INTO produto VALUES ( produto_seq.NEXTVAL,
+                                             pnome,
+                                             pdescricao,
+                                             pidcategoria,
+                                             sysdate );
 
-                    COMMIT;
-                    dbms_output.put_line('Produto cadastrado com sucesso');
-                EXCEPTION
-                    WHEN OTHERS THEN
-                        ROLLBACK;
-                        dbms_output.put_line('Erro ao cadastrar produto. ' || sqlerrm);
-                END;
-
-            END IF;
+                COMMIT;
+                dbms_output.put_line('Produto cadastrado com sucesso');
+            EXCEPTION
+                WHEN OTHERS THEN
+                    ROLLBACK;
+                    dbms_output.put_line('Erro ao cadastrar produto. ' || sqlerrm);
+            END;
         ELSE
             dbms_output.put_line('Produto já cadastrado no sistema.');
         END IF;
@@ -238,6 +344,7 @@ CREATE OR REPLACE PACKAGE BODY pk_gestao_venda AS
     PROCEDURE pr_atualiza_estoque (
         pidproduto  IN estoque.id_produto%TYPE,
         pquantidade IN estoque.quantidade%TYPE,
+        pvaloruni   IN estoque.valor_unitario%TYPE,
         pacao       IN VARCHAR2
     ) IS
     BEGIN
@@ -250,6 +357,7 @@ CREATE OR REPLACE PACKAGE BODY pk_gestao_venda AS
                 id_produto = pidproduto;
 
             COMMIT;
+            dbms_output.put_line('Subtração realizada com sucesso');
         ELSIF pacao = 'Adicao' THEN
             UPDATE estoque
             SET
@@ -259,6 +367,17 @@ CREATE OR REPLACE PACKAGE BODY pk_gestao_venda AS
                 id_produto = pidproduto;
 
             COMMIT;
+            dbms_output.put_line('Adição realizada com sucesso');
+        ELSIF pacao = 'Valor' THEN
+            UPDATE estoque
+            SET
+                valor_unitario = pvaloruni,
+                ultima_atualizacao = sysdate
+            WHERE
+                id_produto = pidproduto;
+
+            COMMIT;
+            dbms_output.put_line('Alteração de valor realizada com sucesso.');
         END IF;
     EXCEPTION
         WHEN OTHERS THEN
@@ -439,6 +558,7 @@ CREATE OR REPLACE PACKAGE BODY pk_gestao_venda AS
                     pr_atualiza_estoque(
                         pidprodutos(i),
                         pquantidades(i),
+                        NULL,
                         'Subtracao'
                     );
                 EXCEPTION
